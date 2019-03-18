@@ -2,14 +2,14 @@ from keras.layers import Input, Dense
 from keras.models import Model
 import numpy as np
 import data
+import utils
 
-print(len(data.train_x))
 
 def start():
-    input_dim = 30
+    input_dim = 1649
 
     # this is the size of our encoded representations
-    encoding_dim = 25  # 32 floats -> compression of factor 24.5, assuming the input is 784 floats
+    encoding_dim = 68  # 32 floats -> compression of factor 24.5, assuming the input is 784 floats
 
     # this is our input placeholder
     input_text = Input(shape=(input_dim,))
@@ -26,19 +26,22 @@ def start():
 
     autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy') #categorical_crossentropy
 
-    train_x = data.train_x
+    encodings = utils.get_encodings()
 
-    print(train_x.shape)
+    #train_x = data.train_x
 
-    validate_x = train_x[5000:]
-    train_x = train_x[:5000]
+    print(encodings.shape)
 
-    autoencoder.fit(train_x, train_x,
+    validate_x = encodings[5000:]
+    x_train = encodings[:5000]
+
+    autoencoder.fit(x_train, x_train,
                     epochs=500,
                     batch_size=256,
                     shuffle=True,
                     validation_data=(validate_x, validate_x)
     )
+
 
 if __name__ == '__main__':
     start()
