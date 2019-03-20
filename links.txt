@@ -1,0 +1,3 @@
+https://machinelearningmastery.com/how-to-develop-lstm-models-for-multi-step-time-series-forecasting-of-household-power-consumption/
+https://machinelearningmastery.com/use-word-embedding-layers-deep-learning-keras/
+https://machinelearningmastery.com/how-to-develop-a-word-level-neural-language-model-in-keras/
