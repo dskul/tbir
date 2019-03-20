@@ -30,19 +30,29 @@ def get_encodings(type='train'):
     voc_size = len(voc)
 
     # build one-hot encodings
-    encodings = []
+    sentences = []
 
     for q in questions:
+        sent = []
         tokens = q.split()
-        one_hot_encoding = np.zeros(voc_size)
 
         for token in tokens:
+            one_hot_encoding = np.zeros(voc_size)
             index = indices.get(token, -1)
             one_hot_encoding[index] = 1
+            sent.append(one_hot_encoding)
 
-        encodings.append(one_hot_encoding)
+        for i in range(30-len(tokens)):
+            if len(sent) > 30:
+                print("?")
+            if len(sent) >= 30:
+                break
+            sent.append(np.zeros(voc_size))
 
-    return np.array(encodings)
+        if len(sent) == 30:
+            sentences.append(sent)
+
+    return np.array(sentences)
 
 
 if __name__ == '__main__':
