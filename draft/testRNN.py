@@ -18,46 +18,6 @@ from keras.layers import Embedding
 
 from utils import read_from_data
 
-def test():
-    # define documents
-    docs = ['Well done!',
-    		'Good work',
-    		'Great effort',
-    		'nice work',
-    		'Excellent!',
-    		'Weak',
-    		'Poor effort!',
-    		'not good',
-    		'poor work',
-    		'Could have done better.']
-    # define class labels
-    labels = array([1,1,1,1,1,0,0,0,0,0])
-
-
-    vocab_size = 50
-    encoded_docs = [one_hot(d, vocab_size) for d in docs]
-    print(encoded_docs)
-
-
-    # pad documents to a max length of 4 words
-    max_length = 4
-    padded_docs = pad_sequences(encoded_docs, maxlen=max_length, padding='post')
-    print(padded_docs)
-
-    # define the model
-    model = Sequential()
-    model.add(Embedding(vocab_size, 8, input_length=max_length))
-    model.add(Flatten())
-    model.add(Dense(1, activation='sigmoid'))
-    # compile the model
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
-    # summarize the model
-    print(model.summary())
-    # fit the model
-    model.fit(padded_docs, labels, epochs=50, verbose=0)
-    # evaluate the model
-    loss, accuracy = model.evaluate(padded_docs, labels, verbose=0)
-    print('Accuracy: %f' % (accuracy*100))
 
 
 def clean_file():
@@ -66,8 +26,8 @@ def clean_file():
     trainset = []
     for i in range(0,len(data),2):
         data[i] = data[i].split()
-        #data[i] = data[i][:-4]
-        #data[i].append("?")
+        data[i] = data[i][:-4]
+        data[i].append("?")
         if i == 0:
             print(data[i])
         data[i+1] = data[i+1].split()
@@ -121,10 +81,10 @@ def run():
     print(sequences[:3])
     vocab_size = len(tokenizer.word_index) + 1
     print(vocab_size)
-    X, y = sequences[:,:-1], sequences[:,-1]
+    input, y = sequences[:,:-1], sequences[:,-1]
     print(len(X))
     y = to_categorical(y, num_classes=vocab_size)
-    seq_length = X.shape[1]
+    seq_length = input.shape[1]
 
     # define model
     model = Sequential()
@@ -138,12 +98,12 @@ def run():
     model.compile(loss='categorical_crossentropy', optimizer='adam',metrics=['accuracy'])
     # fit model
 
-    model.fit(X,y, batch_size=128, epochs=100, validation_split=0.2)
+    model.fit(input,y, batch_size=128, epochs=100, validation_split=0.2)
 
     # save the model to file
-    model.save('model.h5')
+    model.save('./trained_model/model.h5')
     # save the tokenizer
-    dump(tokenizer, open('tokenizer.pkl', 'wb'))
+    dump(tokenizer, open('./trained_model/tokenizer.pkl', 'wb'))
 
 
 
