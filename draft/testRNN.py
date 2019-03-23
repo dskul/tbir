@@ -91,7 +91,7 @@ def run():
     BATCH_SIZE = 256
     VALIDATION_SPLIT = 0.2
     DROPOUT_RATE_1 = 0.4
-    DROPOUT_RATE_2 = 0.35
+    DROPOUT_RATE_2 = 0.45
     DROPOUT_RATE_3 = 0.25
 
     model = Sequential()
@@ -102,7 +102,7 @@ def run():
     model.add(Dense(100, activation='relu'))
     model.add(Dropout(DROPOUT_RATE_2))
     model.add(Dense(vocab_size, activation='softmax'))
-    model.add(Dropout(DROPOUT_RATE_3))
+    #model.add(Dropout(DROPOUT_RATE_3))
     print(model.summary())
     # compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam',metrics=['accuracy'])
