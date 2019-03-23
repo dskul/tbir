@@ -49,11 +49,13 @@ def generate_seq(model, tokenizer, seq_length, seed_text, n_words=10):
     return sentence
 
 if __name__ == '__main__':
+    MODEL_NAME = 'model_100_2019-03-23 15:00:24.993651.h5'
+    TOKENIZER_NAME = 'tokenizer_100_2019-03-23 15:00:25.484208.pkl'
 
-    model = load_model('./trained_model/model_v1.h5')
+    model = load_model('./trained_model/' + MODEL_NAME)
 
     # load the tokenizer
-    tokenizer = load(open('./trained_model/tokenizer_v1.pkl', 'rb'))
+    tokenizer = load(open('./trained_model/' + TOKENIZER_NAME, 'rb'))
 
     print("Give a sentence to make a prediction ... (e.g.  \'How many chairs are in the image1 ?\')\n")
     sentence = input("Sentence: ")
