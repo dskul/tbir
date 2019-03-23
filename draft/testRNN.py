@@ -87,11 +87,10 @@ def run():
     seq_length = input.shape[1]
 
     # define model
-    EPOCHS = 100
+    EPOCHS = 300
     BATCH_SIZE = 256
     VALIDATION_SPLIT = 0.2
-    DROPOUT_RATE = 0.3
-
+    DROPOUT_RATE = 0.35
 
     model = Sequential()
     model.add(Embedding(vocab_size, 50, input_length=seq_length))
