@@ -11,6 +11,7 @@ from random import randint
 from pickle import load
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
+import argparse
 
 
 def convert(sentence):
@@ -49,8 +50,15 @@ def generate_seq(model, tokenizer, seq_length, seed_text, n_words=10):
     return sentence
 
 if __name__ == '__main__':
-    MODEL_NAME = 'model_100_2019-03-23 15:00:24.993651.h5'
-    TOKENIZER_NAME = 'tokenizer_100_2019-03-23 15:00:25.484208.pkl'
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-m", "--model", required=True,
+                    help="path to model")
+    ap.add_argument("-t", "--tokenizer", required=True,
+                    help="path to tokenizer")
+    args = vars(ap.parse_args())
+
+    MODEL_NAME = args['model']
+    TOKENIZER_NAME = args['tokenizer']
 
     model = load_model('./trained_model/' + MODEL_NAME)
 
