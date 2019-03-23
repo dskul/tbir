@@ -14,8 +14,8 @@ from keras.utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
-from keras.layers import Embedding
-
+from keras.layers import Embedding, Dropout
+import time
 from utils import read_from_data
 
 
@@ -82,30 +82,36 @@ def run():
     vocab_size = len(tokenizer.word_index) + 1
     print(vocab_size)
     input, y = sequences[:,:-1], sequences[:,-1]
-    print(len(X))
+    #print(len(X))
     y = to_categorical(y, num_classes=vocab_size)
     seq_length = input.shape[1]
 
     # define model
+    EPOCHS = 100
+    BATCH_SIZE = 256
+    VALIDATION_SPLIT = 0.2
+    DROPOUT_RATE = 0.3
+
+
     model = Sequential()
     model.add(Embedding(vocab_size, 50, input_length=seq_length))
     model.add(LSTM(100, return_sequences=True))
+    #model.add(Dropout(DROPOUT_RATE))
     model.add(LSTM(100))
     model.add(Dense(100, activation='relu'))
+    model.add(Dropout(DROPOUT_RATE))
     model.add(Dense(vocab_size, activation='softmax'))
     print(model.summary())
     # compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam',metrics=['accuracy'])
     # fit model
 
-    model.fit(input,y, batch_size=128, epochs=100, validation_split=0.2)
+    model.fit(input,y, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_split=VALIDATION_SPLIT)
 
     # save the model to file
-    model.save('./trained_model/model.h5')
+    model.save('./trained_model/model_{epochs}_{id}.h5'.format(epochs=EPOCHS, id=time.time()))
     # save the tokenizer
-    dump(tokenizer, open('./trained_model/tokenizer.pkl', 'wb'))
-
-
+    dump(tokenizer, open('./trained_model/tokenizer_{epochs}_{id}.pkl'.format(epochs=EPOCHS, id=time.time()), 'wb'))
 
 
 if __name__ == '__main__':

@@ -20,6 +20,7 @@ def convert(sentence):
     sentence = ' '.join(sentence)
     return sentence
 
+
 # generate a sequence from a language model
 def generate_seq(model, tokenizer, seq_length, seed_text, n_words=10):
     result = list()
@@ -49,6 +50,11 @@ def generate_seq(model, tokenizer, seq_length, seed_text, n_words=10):
 
 if __name__ == '__main__':
 
+    model = load_model('./trained_model/model_v1.h5')
+
+    # load the tokenizer
+    tokenizer = load(open('./trained_model/tokenizer_v1.pkl', 'rb'))
+
     print("Give a sentence to make a prediction ... (e.g.  \'How many chairs are in the image1 ?\')\n")
     sentence = input("Sentence: ")
     # load the model
@@ -58,11 +64,6 @@ if __name__ == '__main__':
         sentence = convert(sentence)
 
     print(sentence)
-
-    model = load_model('./trained_model/model_v1.h5')
-
-    # load the tokenizer
-    tokenizer = load(open('./trained_model/tokenizer_v1.pkl', 'rb'))
 
     # generate new text
     generated = generate_seq(model, tokenizer, 29, sentence.lower())
