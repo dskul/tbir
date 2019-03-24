@@ -1,13 +1,3 @@
-import sys
-from numpy import array
-from pickle import dump
-from keras.preprocessing.text import Tokenizer
-from keras.utils import to_categorical
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Embedding
-from random import randint
 from pickle import load
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
@@ -41,13 +31,14 @@ def generate_seq(model, tokenizer, seq_length, seed_text, n_words=10):
                 prpedicted_word = word
                 break
 
-		# append to input
+        # append to input
         in_text += ' ' + prpedicted_word
         result.append(prpedicted_word)
         if prpedicted_word == 'end':
             break
     sentence = ' '.join(result)
     return sentence
+
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
