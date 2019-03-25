@@ -17,7 +17,7 @@ import argparse
 from nltk.corpus import wordnet as wn
 import nltk
 nltk.download('wordnet', quiet=True)
-
+import globals
 
 def convert(sentence):
     sentence = sentence.split()
@@ -83,7 +83,9 @@ def evaluate(model, tokenizer, n=10):
     indices = []
 
     total = 0
+    total_tests = n
     current_test = 1
+    progress = 0
 
     while current_test <= n:
         idx = randint(0, len(questions))
@@ -95,29 +97,49 @@ def evaluate(model, tokenizer, n=10):
         sentence = questions[idx].strip().lower()
         ground_answer = answers[idx].split()[0].strip().lower()
 
-        print('Testing:', sentence)
-        print('Ground answer:', ground_answer)
+        if globals.DEBUG_MODE:
+            print('Testing:', sentence)
+            print('Ground answer:', ground_answer)
 
         check = sentence.split()
         if check[-3] == "the" and check[-4] == "in":
             sentence = convert(sentence)
 
         generated = generate_seq(model, tokenizer, 29, sentence.lower())
-        print(generated)
+
+        if globals.DEBUG_MODE:
+            print(generated)
 
         if len(generated) > 0:
-            print('Predicted answer:', generated[0])
+            if globals.DEBUG_MODE:
+                print('Predicted answer:', generated[0])
             try:
                 score = wups(ground_answer, generated[0])
-                print('WUPS:', score)
+                if globals.DEBUG_MODE:
+                    print('WUPS:', score)
                 total += score
                 current_test += 1
             except:
-                print("unable to calculate WUPS score")
+                if globals.DEBUG_MODE:
+                    print("unable to calculate WUPS score")
+
+        if not globals.DEBUG_MODE:
+            progress = ((current_test * 1.0) / total_tests) * 100
+            progress = 100 if progress > 100 else progress
+            sys.stdout.write("Progress: %0.2f%%   \r" % progress)
+            sys.stdout.flush()
+
+    if not globals.DEBUG_MODE:
+        print()
+
+    print()
 
     avg = total / max(n, 1)
 
-    print('Average WUPS over {} predictions:'.format(n), avg)
+    print('###############################################')
+    print('# Average WUPS over {} predictions: %0.2f'.format(n) % avg)
+    print('###############################################')
+    print()
 
     return avg
 
@@ -132,10 +154,13 @@ if __name__ == '__main__':
                     help="total number of question-answer test pairs to include in wups scoring")
     ap.add_argument("-w", "--wups", action='store_true', required=False,
                     help="include to start wups evaluation")
+    ap.add_argument("-d", "--debug", action='store_true', required=False,
+                    help="show debug information")
     args = vars(ap.parse_args())
 
     DISPLAY_HELP = args.get('help', False)
     MODEL_NAME = args['model']
+    globals.DEBUG_MODE = args['debug']
     TOKENIZER_NAME = args['tokenizer']
     EVAL_WUPS = args['wups']
     WUPS_COUNT = int(args['wups_count'])
