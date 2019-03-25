@@ -5,6 +5,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 import sys
+import copy
+import numpy as np
 from pickle import load
 
 stderr = sys.stderr
@@ -41,24 +43,36 @@ def generate_seq(model, tokenizer, seq_length, seed_text, n_words=10):
     result = list()
     in_text = seed_text
     # generate a maximum of 10 words if no <END> is predicted
-    for _ in range(n_words):
+    for it in range(n_words):
         # encode the text as integer
         encoded = tokenizer.texts_to_sequences([in_text])[0]
         # truncate sequences to a fixed length
         encoded = pad_sequences([encoded], maxlen=seq_length, padding='pre')
         # predict probabilities for each word
         predicted_class = model.predict_classes(encoded, verbose=0)
+        # get 2nd most likely answer
+        y_prob = model.predict(encoded)[0].tolist()
+        encoded_copy = copy.deepcopy(y_prob)
+        encoded_copy.sort()
+        predicted_class2 = y_prob.index(encoded_copy[-2])
         # map predicted word index to word
-        prpedicted_word = None
+        predicted_word = None
+        predicted_word2 = None
+        start_end = False
         for word, index in tokenizer.word_index.items():
             if index == predicted_class:
-                prpedicted_word = word
-                break
+                predicted_word = word
+                if predicted_word == "end" and it == 0:
+                    start_end = True
+            if index == predicted_class2:
+                predicted_word2 = word
 
+        if start_end == True:
+            predicted_word = predicted_word2
         # append to input
-        in_text += ' ' + prpedicted_word
-        result.append(prpedicted_word)
-        if prpedicted_word == 'end':
+        in_text += ' ' + predicted_word
+        result.append(predicted_word)
+        if predicted_word == 'end':
             break
     #sentence = ' '.join(result)
     return result
