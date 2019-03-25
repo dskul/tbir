@@ -1,10 +1,23 @@
+import os
+import tensorflow as tf
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
+tf.logging.set_verbosity(tf.logging.ERROR)
+
+import sys
 from pickle import load
+
+stderr = sys.stderr
+sys.stderr = open(os.devnull, 'w')
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
+sys.stderr = stderr
+
 import argparse
 from nltk.corpus import wordnet as wn
 import nltk
-nltk.download('wordnet')
+nltk.download('wordnet', quiet=True)
+
 
 def convert(sentence):
     sentence = sentence.split()
@@ -67,9 +80,6 @@ def evaluate(model, tokenizer, n=10):
     questions = data[::2]
     answers = data[1::2]
 
-    print(questions)
-    print(answers)
-
     indices = []
 
     total = 0
@@ -77,8 +87,8 @@ def evaluate(model, tokenizer, n=10):
 
     while current_test <= n:
         idx = randint(0, len(questions))
-        while idx in indices:
-            idx = randint(0, len(questions))
+        while idx in indices or idx >= len(questions):
+            idx = randint(0, len(questions) - 1)
 
         indices.append(idx)
 
@@ -118,14 +128,21 @@ if __name__ == '__main__':
                     help="path to model")
     ap.add_argument("-t", "--tokenizer", required=False, default="tokenizer_120_1553439784.8818188.pkl",
                     help="path to tokenizer")
+    ap.add_argument("-wc", "--wups-count", required=False, default=2000,
+                    help="total number of question-answer test pairs to include in wups scoring")
     ap.add_argument("-w", "--wups", action='store_true', required=False,
-                    help="path to tokenizer")
+                    help="include to start wups evaluation")
     args = vars(ap.parse_args())
 
+    DISPLAY_HELP = args.get('help', False)
     MODEL_NAME = args['model']
     TOKENIZER_NAME = args['tokenizer']
     EVAL_WUPS = args['wups']
+    WUPS_COUNT = int(args['wups_count'])
 
+    if DISPLAY_HELP:
+        ap.print_help()
+        sys.exit(0)
 
     model = load_model('./trained_model/' + MODEL_NAME)
 
@@ -154,5 +171,9 @@ if __name__ == '__main__':
             except:
                 print("unable to calculate WUPS score")
     else:
-        print('WUPS evaluation...')
-        avg_wups = evaluate(model, tokenizer, 2000)
+        print('################################')
+        print('# STARTING WUPS evaluation...')
+        print('################################')
+        print()
+        print()
+        avg_wups = evaluate(model, tokenizer, WUPS_COUNT)
