@@ -73,6 +73,7 @@ def read_data(filename):
 
     return np.array(lines)
 
+
 def evaluate(model, tokenizer, n=10):
     from random import randint
     data = read_data('../data/qa.894.raw.test.txt')
@@ -199,6 +200,5 @@ if __name__ == '__main__':
         print('################################')
         print('# STARTING WUPS evaluation...')
         print('################################')
-        print()
         print()
         avg_wups = evaluate(model, tokenizer, WUPS_COUNT)
