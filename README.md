@@ -8,9 +8,9 @@ Text-Based Information Retrieval Project 2018-2019
 
 Install via:
 ```
-pip install keras tensorflow numpy
+pip install keras tensorflow numpy nltk
 ```
-or 
+or
 ```
-pip3 install keras tensorflow numpy
+pip3 install keras tensorflow numpy nltk
 ```
