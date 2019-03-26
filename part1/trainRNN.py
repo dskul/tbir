@@ -1,23 +1,21 @@
-from numpy import array
-from numpy import asarray
-from numpy import zeros
-import numpy as np
-import string
 import copy
 from numpy import array
 from pickle import dump
 from keras.layers import LSTM
 from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.text import one_hot
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.layers import Flatten
 from keras.layers import Embedding, Dropout
 import time
-from utils import read_from_data
 
+
+def read_from_data(filename):
+    lines = []
+    with open(filename, 'r') as fd:
+        lines = fd.read().splitlines()
+    return lines
 
 
 def clean_file():
@@ -41,7 +39,6 @@ def clean_file():
     save_doc(trainset,"../data/testset.txt")
 
 
-
 # save tokens to file, one dialog per line
 def save_doc(lines, filename):
     seq = []
@@ -53,14 +50,16 @@ def save_doc(lines, filename):
     file.write(result)
     file.close()
 
+
 def load_doc(filename):
-	# open the file as read only
+    # open the file as read only
 	file = open(filename, 'r')
-	# read all text
+    # read all text
 	text = file.read()
-	# close the file
+    # close the file
 	file.close()
 	return text
+
 
 def run():
     # load
@@ -72,17 +71,17 @@ def run():
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(lines)
     sequences = tokenizer.texts_to_sequences(lines)
-    print(sequences[:3])
+
     max_length = len(max(sequences,key=len))
-    print(max_length)
+
     sequences = array(sequences)
     sequences = pad_sequences(sequences, maxlen=max_length+1, padding='pre')
+
     # vocabulary size
-    print(sequences[:3])
     vocab_size = len(tokenizer.word_index) + 1
     print(vocab_size)
     input, y = sequences[:,:-1], sequences[:,-1]
-    #print(len(X))
+
     y = to_categorical(y, num_classes=vocab_size)
     seq_length = input.shape[1]
 
@@ -93,17 +92,17 @@ def run():
     DROPOUT_RATE_1 = 0.4
     DROPOUT_RATE_2 = 0.3
     DROPOUT_RATE_3 = 0.25
-    LATENT_DIM     = 80
+    LATENT_DIM     = 100
 
     model = Sequential()
     model.add(Embedding(vocab_size, 50, input_length=seq_length))
     model.add(LSTM(LATENT_DIM, return_sequences=True))
-    #model.add(Dropout(DROPOUT_RATE_1))
+    # model.add(Dropout(DROPOUT_RATE_1))
     model.add(LSTM(LATENT_DIM))
     model.add(Dense(100, activation='relu'))
     model.add(Dropout(DROPOUT_RATE_2))
     model.add(Dense(vocab_size, activation='softmax'))
-    #model.add(Dropout(DROPOUT_RATE_3))
+    # model.add(Dropout(DROPOUT_RATE_3))
     print(model.summary())
     # compile model
     model.compile(loss='categorical_crossentropy', optimizer='adam',metrics=['accuracy'])

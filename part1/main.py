@@ -20,6 +20,7 @@ import nltk
 nltk.download('wordnet', quiet=True)
 import globals
 
+
 def convert(sentence):
     sentence = sentence.split()
     sentence = sentence[:-4]
@@ -29,6 +30,16 @@ def convert(sentence):
 
 
 def wups(ground_truth, predicted, threshold=0.9):
+    '''
+    Calculates the WUPS score between ground_truth and predicted
+    using WordNet
+
+    :param ground_truth: the ground truth answer
+    :param predicted: the predicted answer
+    :param threshold: the threshold to use in WUPS
+    :return: wups
+    '''
+
     ground_truth_synset = wn.synset('{}.n.01'.format(ground_truth))
     predicted_synset = wn.synset('{}.n.01'.format(predicted))
 
@@ -39,6 +50,17 @@ def wups(ground_truth, predicted, threshold=0.9):
 
 # generate a sequence from a language model
 def generate_seq(model, tokenizer, seq_length, seed_text, n_words=10):
+    '''
+    Predicts the following tokens in a sequence
+
+    :param model: the model to use for generating a sequence
+    :param tokenizer: the tokenizer to use for generating a sequence
+    :param seq_length: the max length of a sequence
+    :param seed_text: the input question
+    :param n_words: max number of words to predict
+    :return:
+    '''
+
     result = list()
     in_text = seed_text
     # generate a maximum of 10 words if no <END> is predicted
@@ -73,9 +95,7 @@ def generate_seq(model, tokenizer, seq_length, seed_text, n_words=10):
         result.append(predicted_word)
         if predicted_word == 'end':
             break
-    #sentence = ' '.join(result)
     return result
-    #return sentence
 
 
 def read_data(filename):
@@ -88,6 +108,15 @@ def read_data(filename):
 
 
 def evaluate(model, tokenizer, n=10):
+    '''
+    Calculates the average WUPS score of the model using n question-answer pairs
+
+    :param model: the model to use in the evaluation
+    :param tokenizer: the tokenizer to use in the evaluation
+    :param n: total number of question-answer test pairs to include
+    :return: avg wups
+    '''
+
     from random import randint
     data = read_data('../data/qa.894.raw.test.txt')
 
@@ -116,8 +145,9 @@ def evaluate(model, tokenizer, n=10):
             print('Ground answer:', ground_answer)
 
         check = sentence.split()
-        if check[-3] == "the" and check[-4] == "in":
-            sentence = convert(sentence)
+        if len(check) > 4:
+            if check[-3] == "the" and check[-4] == "in":
+                sentence = convert(sentence)
 
         generated = generate_seq(model, tokenizer, 29, sentence.lower())
 
@@ -194,21 +224,13 @@ if __name__ == '__main__':
         ground_answer = input("Ground truth answer: ")
 
         check = sentence.split()
-        if check[-3] == "the" and check[-4] == "in":
-            sentence = convert(sentence)
-
-        print(sentence)
+        if len(check) > 4:
+            if check[-3] == "the" and check[-4] == "in":
+                sentence = convert(sentence)
 
         # generate new text
         generated = generate_seq(model, tokenizer, 29, sentence.lower())
-        print(generated)
-
-        if len(generated) > 0:
-            try:
-                score = wups(ground_answer, generated[0])
-                print('WUPS:', score)
-            except:
-                print("unable to calculate WUPS score")
+        print('answer:', generated)
     else:
         print('################################')
         print('# STARTING WUPS evaluation...')
