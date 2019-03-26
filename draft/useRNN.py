@@ -6,7 +6,6 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 
 import sys
 import copy
-import numpy as np
 from pickle import load
 
 stderr = sys.stderr
